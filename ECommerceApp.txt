@@ -367,11 +367,11 @@ Open pom.xml ----> At the bottom, after 'dependencies' tag paste the below conte
 <distributionManagement>
   <repository>
     <id>maven-releases</id>
-    <url>http://54.153.23.195:8081/repository/maven-releases/</url>
+    <url>http://100.54.196.28:8081/repository/maven-releases/</url>
   </repository>
   <snapshotRepository>
     <id>maven-snapshots</id>
-    <url>http://54.153.23.195:8081/repository/maven-snapshots/</url>
+    <url>http://://100.54.196.28:8081/repository/maven-snapshots/</url>
   </snapshotRepository>
 </distributionManagement>
 

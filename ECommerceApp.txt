@@ -132,7 +132,7 @@ eksctl create nodegroup --cluster=kastro-eks \
                        --nodes-max=4 \
                        --node-volume-size=20 \
                        --ssh-access \
-                       --ssh-public-key=ecommerce \
+                       --ssh-public-key=vinod1 \
                        --managed \
                        --asg-access \
                        --external-dns-access \

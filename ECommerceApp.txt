@@ -437,6 +437,7 @@ pipeline {
     }
 
     stages {
+
         stage('Git Checkout') {
             steps {
                 git 'https://github.com/VINOD-TEC/Ecommerce-App-Kastro.git'
@@ -464,12 +465,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar') {
-                    sh '''
+                    sh """
                     $SCANNER_HOME/bin/sonar-scanner \
                     -Dsonar.projectName=ECommerce \
                     -Dsonar.projectKey=ECommerce \
                     -Dsonar.java.binaries=target/classes
-                    '''
+                    """
                 }
             }
         }
@@ -482,7 +483,9 @@ pipeline {
 
         stage('Publish to Nexus') {
             steps {
-                withMaven(globalMavenSettingsConfig: 'maven-setting', jdk: 'jdk17', maven: 'maven') {
+                withMaven(
+                    globalMavenSettingsConfig: 'maven-settings'
+                ) {
                     sh "mvn deploy -DskipTests=true"
                 }
             }
@@ -518,8 +521,11 @@ pipeline {
         stage('Deploy to Container') {
             steps {
                 script {
-                    sh "docker stop ecommerce-container || true && docker rm ecommerce-container || true"
-                    sh "docker run -d --name ecommerce-container -p 8083:8080 ${DOCKER_IMAGE}"
+                    sh """
+                    docker stop ecommerce-container || true
+                    docker rm ecommerce-container || true
+                    docker run -d --name ecommerce-container -p 8083:8080 ${DOCKER_IMAGE}
+                    """
                 }
             }
         }
@@ -531,28 +537,17 @@ pipeline {
                 def jobName = env.JOB_NAME
                 def buildNumber = env.BUILD_NUMBER
                 def pipelineStatus = currentBuild.result ?: 'SUCCESS'
-                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+                def bannerColor = pipelineStatus == 'SUCCESS' ? 'green' : 'red'
 
-                def body = """
-                <html>
-                <body>
-                <div style="border: 4px solid ${bannerColor}; padding: 10px;">
-                <h2>${jobName} - Build ${buildNumber}</h2>
-                <div style="background-color: ${bannerColor}; padding: 10px;">
-                <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
-                </div>
-                <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
-                </div>
-                </body>
-                </html>
-                """
-
-                emailext (
-                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
-                    body: body,
+                emailext(
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus}",
+                    body: """
+                        <h2>${jobName} - Build ${buildNumber}</h2>
+                        <p>Status: ${pipelineStatus}</p>
+                        <p><a href="${BUILD_URL}">Open Build</a></p>
+                    """,
                     to: 'vinodpadaki14@gmail.com',
-                    from: 'vinu4.tv@gmail.com@example.com',
-                    replyTo: 'vinu4.tv@example.com',
+                    from: 'vinu4.tv@gmail.com',
                     mimeType: 'text/html',
                     attachmentsPattern: 'trivy-image-report.html'
                 )
@@ -561,6 +556,7 @@ pipeline {
     }
 }
 
+        
 ---------------------------------------
 Deploying to EKS Cluster
 ---------------------------------------
